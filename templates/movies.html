@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+</head>
+<body>
+  {% for movie in movie_list %}
+      {% if forloop.counter <= 3 %}
+          {{ forloop.counter }}위: <a href="/movie/{{ forloop.counter0 }}">{{ movie.title }}</a><br>
+      {% endif %}
+  {% endfor %}
+</body>
+</html>
