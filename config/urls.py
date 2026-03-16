@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.http import HttpResponse, Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+
 
 movie_list = [
     {'title': '파묘', 'director': '정재현'},
@@ -71,6 +72,16 @@ def movie_detail(request, index):
     return render(request, 'movie.html', context)
 
 
+def gugu(request, num):
+    if num < 2:
+        return redirect('/gugu/2/')
+
+    context = {
+        'num': num,
+        'results': [(i, num * i) for i in range(1, 10)],
+    }
+
+    return render(request, 'gugu.html', context)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Index),
@@ -80,5 +91,6 @@ urlpatterns = [
     path('language/<str:lang>/', language),
     path('movie/', movies),
     path('movie/<int:index>/', movie_detail),
+    path('gugu/<int:num>/', gugu),
 
 ]
