@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>Todo_list</h1>
+        <ul>
+            {% for todo in todos %}
+                <li>
+                    <a href="/todo/{{ todo.id }}/">{{ todo.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+</body>
+</html>
