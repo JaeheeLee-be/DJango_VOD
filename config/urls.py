@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from bookmark import views
+from users import views as users_views
 
 
 movie_list = [
@@ -96,5 +97,7 @@ urlpatterns = [
     path('bookmark/', views.bookmark_list),
     path('bookmark/<int:pk>/', views.bookmark_detail),
     path('day2/', include('Day2.urls')),
-
+    path('accounts/login/', users_views.login, name='login'),
+    path('accounts/signup/', users_views.sign_up, name='signup'),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]

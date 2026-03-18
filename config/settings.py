@@ -42,6 +42,7 @@ DJANGO_APPS = [
 OWN_APPS = [
     'bookmark',
     'Day2',
+    'users',
 ]
 
 THIRD_PARTY_APPS = [
@@ -114,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us' #ko-KR 한국어 버전
+LANGUAGE_CODE = 'ko-KR' #기본 셋팅 'en-us'
 
 TIME_ZONE = 'UTC'
 
@@ -132,3 +133,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# login
+LOGIN_REDIRECT_URL = '/day2/todo/'
+LOGIN_URL = '/accounts/login/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
