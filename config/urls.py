@@ -29,8 +29,9 @@ movie_list = [
     {'title': '시민덕희', 'director': '박명주'},
 ]
 
-def Index(request):
-    return HttpResponse("<h1>hello2</h1>")
+def index(request):
+    return redirect('todo_list')
+
 
 def book_list(request):
     # book_text =  ''
@@ -85,8 +86,8 @@ def gugu(request, num):
 
     return render(request, 'gugu.html', context)
 urlpatterns = [
+    path('', index, name='index'),
     path('admin/', admin.site.urls),
-    # path('', Index),
     # path('book_list/', book_list),
     # path('book_list/<int:num>/', book),
     # path('language/python/', python),
@@ -96,6 +97,7 @@ urlpatterns = [
     # path('gugu/<int:num>/', gugu),
     path('bookmark/', views.bookmark_list),
     path('bookmark/<int:pk>/', views.bookmark_detail),
+
     path('day2/', include('Day2.urls')),
     path('accounts/login/', users_views.login, name='login'),
     path('accounts/signup/', users_views.sign_up, name='signup'),

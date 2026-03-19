@@ -17,7 +17,7 @@ def todo_list(request):
             Q(title__icontains=q) | Q(description__icontains=q)
         )
 
-    paginator = Paginator(todos, 5)  # 페이지당 5개
+    paginator = Paginator(todos, 10)  # 페이지당 5개
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

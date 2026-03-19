@@ -11,4 +11,5 @@
 
     <a href="{% url 'todo_update' todo.id %}"><button>수정하기</button></a>
     <a href="{% url 'todo_delete' todo.id %}"><button>삭제하기</button></a>
+    <a href="{% url 'todo_list' %}">목록으로 돌아가기</a>
 {% endblock %}
