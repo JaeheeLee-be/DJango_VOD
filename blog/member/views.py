@@ -1,5 +1,6 @@
 # from config import settings      현재 Django가 실행되고 있는 환경에서 settings 파일을 찾아서 가져옴, 파일명이 바뀌면 오류가 날 수 있음
 from django.conf import settings # 폴더 경로에 있는 그대로
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login as django_login
@@ -42,20 +43,21 @@ def sign_up(request):
 
 
 def login(request):
-        if request.method == 'POST':
-            form = AuthenticationForm(request, request.POST or None)
-            if form.is_valid():
-                django_login(request, form.get_user())
-                return redirect(reverse('blog_list'))
-        else:
-            form = AuthenticationForm(request)
+    form = AuthenticationForm(request, request.POST or None)
+    if form.is_valid():
+        django_login(request, form.get_user())
 
-    # form = AuthenticationForm(request, request.POST or None)
-    # if form.is_valid():
-    #     django_login(request, form.get_user())
-    #     return redirect('/')
+        next = request.GET.get('next')
+        if next:
+            return redirect(next)
+        return redirect(reverse('blog_list'))
 
-            context = {
-            'form': form
-        }
-        return render(request, 'registration/login.html', context)
+# form = AuthenticationForm(request, request.POST or None)
+# if form.is_valid():
+#     django_login(request, form.get_user())
+#     return redirect('/')
+
+    context = {
+    'form': form
+    }
+    return render(request, 'registration/login.html', context)

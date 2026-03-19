@@ -1,9 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'todo/base.html' %}
 {% block content %}
-    <h1>회원가입</h1>
+    <h1>Todo 생성</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button>회원가입</button>
+        <button type="submit">생성</button>
     </form>
 {% endblock %}

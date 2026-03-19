@@ -1,37 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <nav>
-        <div style="text-align: right">
-            {% if request.user.is_authenticated %}
-                <form action="{% url 'logout' %}" method="POST" style="display: inline">
-                    {% csrf_token %}
-                    <button>로그아웃</button>
-                </form>
-                {{ request.user.username }}
-            {% else %}
-                <a href="{% url 'signup' %}">회원가입</a>
-                <a href="{% url 'login' %}">로그인</a>
-            {% endif %}
-        </div>
-    </nav>
+{% extends 'todo/base.html' %}
+{% block content %}
+    <h1>Todo List</h1>
 
-    {% if request.user.is_authenticated %}
-        <h1>Todo_list</h1>
-        <ul>
-            {% for todo in todos %}
-                <li>
-                    <a href="/todo/{{ todo.id }}/">{{ todo.title }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>로그인 후 이용 가능합니다.</p>
-    {% endif %}
+    <form method="get">
+        <input type="text" name="q" value="{{ q }}" placeholder="검색어 입력">
+        <button type="submit">검색</button>
+    </form>
 
-</body>
-</html>
+    <a href="{% url 'todo_create' %}"><button>생성하기</button></a>
+
+    <ul>
+        {% for todo in page_obj %}
+            <li>
+                <a href="{% url 'todo_info' todo.id %}">{{ todo.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div>
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}">이전</a>
+        {% endif %}
+        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&q={{ q }}">다음</a>
+        {% endif %}
+    </div>
+{% endblock %}
