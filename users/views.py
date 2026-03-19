@@ -9,7 +9,7 @@ def sign_up(request):
     if form.is_valid():
         form.save()
 
-        return redirect('/accounts/login/')
+        return redirect(settings.LOGIN_URL)
 
     context = {
         'form': form
