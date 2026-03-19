@@ -41,7 +41,7 @@ def blog_detail(request, pk):
 @login_required     # setting에 login url로 보내줌
 def blog_create(request):
 
-    # if not request.user.is_authenticated:
+    # if not request.users.is_authenticated:
     #     return redirect('login')
 
     form = BlogForm(request.POST or None)
@@ -64,7 +64,7 @@ def blog_create(request):
 
 def blog_update(request, pk):
     blog = get_object_or_404(Blog, pk=pk, author=request.user) # pk와 author와 request.user를 확인
-    # if request.user != blog.author:
+    # if request.users != blog.author:
     #     raise Http404
 
     form = BlogForm(request.POST or None, instance=blog)
