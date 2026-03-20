@@ -3,12 +3,12 @@
     <h1>Todo List</h1>
 
     <p style="text-align: right">
-        <a href="{% url 'todo_create' %}"><button>생성하기</button></a>
+        <a href="{% url 'cbv_todo_create' %}"><button>생성하기</button></a>
     </p>
 
     {% for todo in page_obj %}
         <p>
-            <a href="{% url 'todo_info' todo.id %}">
+            <a href="{% url 'cbv_todo_info' todo.id %}">
                 {{ todo.title }}
             </a>
         </p>

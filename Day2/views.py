@@ -26,7 +26,7 @@ def todo_list(request):
 
 @login_required
 def todo_info(request, todo_id):
-    todo = get_object_or_404(Todo, id=todo_id)
+    todo = get_object_or_404(Todo, id=todo_id, user=request.user)
     return render(request, 'todo/todo_info.html', {'todo': todo.__dict__})
 
 
