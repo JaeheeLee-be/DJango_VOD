@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.http import Http404
+from django.views.decorators.http import require_http_methods
 
 from blog.forms import BlogForm
 from blog.models import Blog
@@ -26,8 +27,8 @@ def blog_list(request):
     page_object = paginator.get_page(page)
 
     context = {
-        # 'blogs': blog,
-        'page_object': page_object,
+        'object_list': page_object.object_list,
+        'page_obj': page_object,
     }
     return render(request, 'blog_list.html', context)
 
@@ -49,7 +50,7 @@ def blog_create(request):
         blog = form.save(commit=False) # model 생성
         blog.author = request.user     # 현재 로그인 된 유저를 넣음
         blog.save()
-        return redirect(reverse('blog_detail', kwargs={'pk': blog.pk}))
+        return redirect(reverse('fb:detail', kwargs={'pk': blog.pk}))
 
     #     form = BlogForm(request.POST)
     #     if form.is_valid():
@@ -70,7 +71,7 @@ def blog_update(request, pk):
     form = BlogForm(request.POST or None, instance=blog)
     if form.is_valid():
         blog = form.save()
-        return redirect(reverse('blog_detail', kwargs={'pk': blog.pk}))
+        return redirect(reverse('fb:detail', kwargs={'pk': blog.pk}))
 
     context = {
         'form': form,
@@ -98,3 +99,13 @@ def blog_update(request, pk):
 #     response.set_cookie('visits', visits)
 #
 #     return response
+
+@login_required()
+@require_http_methods([['POST']])
+def blog_delete(request, pk):
+    # if request.method != 'POST':
+    #     raise Http404()
+    blog = get_object_or_404(Blog, pk=pk, author=request.user)
+    blog.delete()
+
+    return redirect(reverse('fb:list'))

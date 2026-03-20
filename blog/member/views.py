@@ -50,7 +50,7 @@ def login(request):
         next = request.GET.get('next')
         if next:
             return redirect(next)
-        return redirect(reverse('blog_list'))
+        return redirect(reverse('blog:list'))
 
 # form = AuthenticationForm(request, request.POST or None)
 # if form.is_valid():

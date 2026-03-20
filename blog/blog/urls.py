@@ -1,9 +1,18 @@
 from django.urls import path
-from . import views
+
+from blog import cb_views
+
+app_name = 'blog'
 
 urlpatterns = [
-    path('', views.blog_list, name='blog_list'),
-    path('<int:pk>/', views.blog_detail, name='blog_detail'),
-    path('create/', views.blog_create, name='blog_create'),
-    path('<int:pk>/update/', views.blog_update, name='blog_update'),
+    # CBV blog
+    path('', cb_views.BlogListView.as_view(), name='list'),
+    path('<int:pk>/', cb_views.BlogDetailView.as_view(), name='detail'),
+    path('create/', cb_views.BlogCreateView.as_view(), name='create'),
+    path('<int:pk>/update/', cb_views.BlogUpdateView.as_view(), name='update'),
+    path('<int:pk>/delete/', cb_views.BlogDeleteView.as_view(), name='delete'),
 ]
+
+# {% url 'blog_list' %}
+# {% url 'blog:list' %}
+# {% url 'commit:list' %}

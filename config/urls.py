@@ -88,18 +88,10 @@ def gugu(request, num):
 urlpatterns = [
     path('', index, name='index'),
     path('admin/', admin.site.urls),
-    # path('book_list/', book_list),
-    # path('book_list/<int:num>/', book),
-    # path('language/python/', python),
-    # path('language/<str:lang>/', language),
-    # path('movie/', movies),
-    # path('movie/<int:index>/', movie_detail),
-    # path('gugu/<int:num>/', gugu),
     path('bookmark/', views.bookmark_list),
     path('bookmark/<int:pk>/', views.bookmark_detail),
-
     path('day2/', include('Day2.urls')),
-    path('accounts/login/', users_views.login, name='login'),
-    path('accounts/signup/', users_views.sign_up, name='signup'),
+    path('cbv/', include('Day2.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('users.urls')),
 ]
