@@ -1,24 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h1>{{ blog.title }}</h1>
-                        <!-- admin 권한 넣을 때 is_staff or is_superuser -->
-    {% if request.user == blog.author or request.user.is_staff %} <!-- request.user와 blog.author 같은지 확인 -->
-        <div style="text-align: right">
-            <a href="{% url 'blog:update' blog.pk %}">수정</a>
+    <div class="mt-2 d-flex justify-content-between">
+        <h1>{{ blog.title }}</h1>
+                            <!-- admin 권한 넣을 때 is_staff or is_superuser -->
+        {% if request.user == blog.author or request.user.is_staff %} <!-- request.user와 blog.author 같은지 확인 -->
+            <div>
+                <a class="btn btn-sm btn-warning" href="{% url 'blog:update' blog.pk %}">수정</a>
 
-            <form id="delete_form" action="{% url 'blog:delete' blog.pk %}" method="POST" style="display: inline">
-                {% csrf_token %}
-                <button type="button" id="delete_btn">삭제</button>
-            </form>
-        </div>
-    {% endif %}
+                <form id="delete_form" action="{% url 'blog:delete' blog.pk %}" method="POST" style="display: inline">
+                    {% csrf_token %}
+                    <button type="button" id="delete_btn" class="btn btn-sm btn-danger">삭제</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
     <div style="text-align: right">
         {{ blog.author.username }}
     </div>
     <hr>
         <p>{{ blog.content }}</p>
-
-        <a href="{% url 'blog:list' %}">목록으로 돌아가기</a>
+    <hr>
+        <a class="btn btn-sm btn-info" href="{% url 'blog:list' %}">목록</a>
 {% endblock %}
 
 {% block js %}

@@ -60,7 +60,7 @@ def blog_create(request):
     #     form = BlogForm()
 
     context = {'form': form}
-    return render(request, 'blog_create.html', context)
+    return render(request, 'blog_form.html', context)
 
 
 def blog_update(request, pk):
@@ -76,7 +76,7 @@ def blog_update(request, pk):
     context = {
         'form': form,
     }
-    return render(request, 'blog_update.html', context)
+    return render(request, 'blog_form.html', context)
 
 
 
