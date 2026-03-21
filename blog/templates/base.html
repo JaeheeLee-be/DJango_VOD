@@ -1,11 +1,14 @@
+{% load static %} <!-- import와 같은 기능 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>블로그 프로젝트</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <!-- rel="stylesheet이 없으면 브라우저가 CSS 파일을 인식하지 못함-->
 </head>
 <body>
-    <nav style="display: flex; justify-content: space-between">
+    <nav class="d-flex justify-content-between">
         <div>
             <a href="{% url 'blog:list' %}">홈</a>
         </div>
@@ -23,6 +26,10 @@
         </div>
     </nav>
     {% block content %}{% endblock %}
+    <footer>
+
+    </footer>
+    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
     {% block js %}{% endblock %}
 </body>
 </html>
