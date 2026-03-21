@@ -53,3 +53,4 @@ class Comment(TimeStampModel):
     class Meta:
         verbose_name = '댓글'
         verbose_name_plural = '댓글 목록'
+        ordering = ['-created_at', '-id'] # 댓글의 최신순
