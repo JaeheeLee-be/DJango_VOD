@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Todo
+from .models import Todo, Comment
 
 @admin.register(Todo)
 class TodoAdmin(admin.ModelAdmin):
@@ -17,3 +17,8 @@ class TodoAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return queryset  # admin은 모든 Todo 조회 가능
         return queryset.filter(user=request.user)
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'todo', 'message', 'created_at']
