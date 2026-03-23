@@ -11,6 +11,7 @@ class TodoListView(LoginRequiredMixin, ListView):
     model = Todo
     template_name = 'todo/todo_list.html'
     paginate_by = 10
+    ordering = ('-created_at',)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -39,7 +40,7 @@ class TodoDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['todo'] = self.get_object().__dict__
+        context['todo'] = self.object.__dict__
         return context
 
 
@@ -49,9 +50,7 @@ class TodoCreateView(LoginRequiredMixin, CreateView):
     fields = ['title', 'description', 'start_date', 'end_date']
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user
-        self.object.save()
+        form.instance.user = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -75,6 +74,7 @@ class TodoUpdateView(LoginRequiredMixin, UpdateView):
 
 class TodoDeleteView(LoginRequiredMixin, DeleteView):
     model = Todo
+    template_name = 'todo/todo_info.html'
 
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)

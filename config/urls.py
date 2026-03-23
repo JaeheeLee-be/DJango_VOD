@@ -30,7 +30,7 @@ movie_list = [
 ]
 
 def index(request):
-    return redirect('todo_list')
+    return redirect('cbv_todo_list')
 
 
 def book_list(request):
@@ -90,8 +90,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('bookmark/', views.bookmark_list),
     path('bookmark/<int:pk>/', views.bookmark_detail),
-    path('day2/', include('Day2.urls')),
-    path('cbv/', include('Day2.urls')),
+    path('day2/', include('Day2.urls')), # FBV
+    path('cbv/', include('Day2.cb_urls')), # CBV
     path('accounts/', include('django.contrib.auth.urls')),
-    path('accounts/', include('users.urls')),
+    path('users/', include('users.urls')),
 ]
