@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from blog.models import Blog
+from blog.models import Blog, Comment
 from blog.forms import CommentForm
 
 
@@ -30,12 +30,20 @@ class BlogListView(ListView):
         return queryset
 
 
-class BlogDetailView(DetailView):
-    model = Blog
+class BlogDetailView(ListView):
+    model = Comment
     queryset = Blog.objects.all().prefetch_related('comment_set', 'comment_set__author')
     # 미리 관련 데이터를 한꺼번에 가져와서 DB조회를 하기 때문에 DB 요청횟수를 줄일 수 있다.
     template_name = 'blog_detail.html'
     # model,template만 가져오면 자동으로 pk를 가져온다, urls에서 pk가 아닌 다른걸 넣으면 사용 할 수 없다.
+    paginate_by = 10
+
+    def get(self, request, *args, **kwargs):
+        self.object = get_object_or_404(Blog, pk=kwargs['blog_pk'])
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.model.objects.filter(blog=self.object).prefetch_related('author')
 
     # def queryset(self):
     #     queryset = super().get_queryset()
@@ -49,26 +57,27 @@ class BlogDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comment_form'] = CommentForm()
+        context['blog'] = self.object
         return context
 
-    def post(self, *args, **kwargs):
-        comment_form = CommentForm(self.request.POST)
-
-        if not comment_form.is_valid():
-            self.object = self.get_object()
-            context = self.get_context_data(object=self.object)
-            context['comment_form'] = comment_form
-            return self.render_to_response(context)
-
-        if not self.request.user.is_authenticated:
-            raise Http404
-
-        comment = comment_form.save(commit=False)
-        comment.blog_id = self.kwargs['pk']
-        comment.author = self.request.user
-        comment.save()
-
-        return HttpResponseRedirect(reverse_lazy('blog:detail', kwargs={'pk': self.kwargs['pk']}))
+    # def post(self, *args, **kwargs):
+    #     comment_form = CommentForm(self.request.POST)
+    #
+    #     if not comment_form.is_valid():
+    #         self.object = self.get_object()
+    #         context = self.get_context_data(object=self.object)
+    #         context['comment_form'] = comment_form
+    #         return self.render_to_response(context)
+    #
+    #     if not self.request.user.is_authenticated:
+    #         raise Http404
+    #
+    #     comment = comment_form.save(commit=False)
+    #     # comment.blog_id = self.kwargs['pk']
+    #     comment.author = self.request.user
+    #     comment.save()
+    #
+    #     return HttpResponseRedirect(reverse_lazy('blog:detail', kwargs={'pk': self.kwargs['pk']}))
 
 
 class BlogCreateView(LoginRequiredMixin, CreateView): # LoginRequiredMixin = @login_required() 같은 기능
@@ -166,7 +175,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         self.object.author = self.request.user
         self.object.blog = blog
         self.object.save()
-        return HttpResponseRedirect(reverse('blog:detail', kwargs={'pk': blog.pk}))
+        return HttpResponseRedirect(reverse('blog:detail', kwargs={'blog_pk': blog.pk}))
 
     def get_blog(self):
         pk = self.kwargs['blog_pk'] # kwargs['pk']로 하면 comment model이여서 comment의 pk와 헷갈릴 수 있기 때문에 변경
