@@ -1,4 +1,6 @@
 from django import forms
+from django_summernote.widgets import SummernoteWidget
+
 from .models import Todo, Comment
 
 
@@ -6,11 +8,22 @@ class TodoForm(forms.ModelForm):
     class Meta:
         model = Todo
         fields = ['title', 'description', 'start_date', 'end_date']
+        widgets = {
+            'description': SummernoteWidget(),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
 
 
 class TodoUpdateForm(TodoForm):
     class Meta(TodoForm.Meta):
-        fields = TodoForm.Meta.fields + ['is_completed']
+        fields = TodoForm.Meta.fields + ['is_completed', 'completed_image']
+        widgets = {
+            **TodoForm.Meta.widgets,
+            'is_completed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'completed_image': forms.FileInput(attrs={'class': 'form-control'}),
+        }
 
 
 class CommentForm(forms.ModelForm):

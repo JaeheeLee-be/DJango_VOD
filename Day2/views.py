@@ -42,7 +42,7 @@ def todo_create(request):
     else:
         form = TodoForm()
 
-    return render(request, 'todo/todo_create.html', {'form': form})
+    return render(request, 'todo/todo_form.html', {'form': form})
 
 
 @login_required

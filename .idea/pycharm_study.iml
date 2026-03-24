@@ -16,7 +16,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/oz" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 (pycharm_study)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.12 (test2) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">

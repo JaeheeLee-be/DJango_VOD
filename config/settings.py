@@ -37,6 +37,8 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_summernote',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 OWN_APPS = [
@@ -130,6 +132,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -139,3 +144,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/cbv/todo/'
 LOGIN_URL = '/users/login/'
 LOGOUT_REDIRECT_URL = '/users/login/'
+
+SUMMERNOTE_CONFIG = {
+    'summernote': {
+        'toolbar': [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link']],
+            ['view', ['fullscreen', 'help']],  # codeview 제거 → JS/HTML 직접 수정 차단
+        ],
+    }
+}

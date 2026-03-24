@@ -6,7 +6,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.core.paginator import Paginator
 
 from .models import Todo, Comment
-from .forms import CommentForm
+from .forms import CommentForm, TodoForm, TodoUpdateForm
 
 
 class TodoListView(LoginRequiredMixin, ListView):
@@ -56,8 +56,8 @@ class TodoDetailView(LoginRequiredMixin, DetailView):
 
 class TodoCreateView(LoginRequiredMixin, CreateView):
     model = Todo
-    template_name = 'todo/todo_create.html'
-    fields = ['title', 'description', 'start_date', 'end_date']
+    template_name = 'todo/todo_form.html'
+    form_class = TodoForm  # fields 대신 form_class 사용
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -69,8 +69,8 @@ class TodoCreateView(LoginRequiredMixin, CreateView):
 
 class TodoUpdateView(LoginRequiredMixin, UpdateView):
     model = Todo
-    template_name = 'todo/todo_update.html'
-    fields = ['title', 'description', 'start_date', 'end_date']
+    template_name = 'todo/todo_form.html'
+    form_class = TodoUpdateForm  # fields 대신 form_class 사용
 
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)

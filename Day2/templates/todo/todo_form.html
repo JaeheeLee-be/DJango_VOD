@@ -1,0 +1,56 @@
+{% extends 'todo/base.html' %}
+
+{% block extra_head %}
+    {{ form.media.css }}
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1 class="mb-4">{% if object %}Todo 수정{% else %}Todo 생성{% endif %}</h1>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">제목</label>
+                {{ form.title }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">내용</label>
+                {{ form.description }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">시작일</label>
+                {{ form.start_date }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">종료일</label>
+                {{ form.end_date }}
+            </div>
+
+            {% if object %}
+                <div class="mb-3 form-check">
+                    {{ form.is_completed }}
+                    <label class="form-check-label">완료 여부</label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">완료 이미지</label>
+                    {{ form.completed_image }}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">
+                {% if object %}수정{% else %}생성{% endif %}
+            </button>
+            <a href="{% url 'cbv_todo_list' %}" class="btn btn-secondary ms-2">목록</a>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    {{ form.media.js }}
+{% endblock %}
