@@ -63,8 +63,14 @@ def blog_create(request):
     return render(request, 'blog_form.html', context)
 
 
+@login_required
 def blog_update(request, pk):
-    blog = get_object_or_404(Blog, pk=pk, author=request.user) # pk와 author와 request.user를 확인
+    if request.user.is_superuser:
+        blog = get_object_or_404(Blog, pk=pk)
+    else:
+        blog = get_object_or_404(Blog, pk=pk, author=request.user)
+
+    # blog = get_object_or_404(Blog, pk=pk, author=request.user) # pk와 author와 request.user를 확인
     # if request.users != blog.author:
     #     raise Http404
 

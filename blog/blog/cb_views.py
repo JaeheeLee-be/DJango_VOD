@@ -7,7 +7,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from blog.models import Blog, Comment
-from blog.forms import CommentForm
+from blog.forms import CommentForm, BlogForm
 
 
 class BlogListView(ListView):
@@ -83,13 +83,15 @@ class BlogDetailView(ListView):
 class BlogCreateView(LoginRequiredMixin, CreateView): # LoginRequiredMixin = @login_required() 같은 기능
     model = Blog
     template_name = 'blog_form.html'
-    fields = ['category', 'title', 'content']
+    form_class = BlogForm
     # success_url = reverse_lazy('cb_blog_list') 정적인 page로 갈 때는 활용하는게 좋다.
 
 
     def form_valid(self, form):
         self.object = form.save(commit=False) # DB를 콜하지 않음
         self.object.author = self.request.user
+        if 'image' in self.request.FILES:
+            self.object.image = self.request.FILES['image']
         self.object.save()
         return HttpResponseRedirect(self.get_success_url()) # (self.get_success_url()): Django에서 권장, 기본값
 
@@ -120,8 +122,15 @@ class BlogCreateView(LoginRequiredMixin, CreateView): # LoginRequiredMixin = @lo
 class BlogUpdateView(LoginRequiredMixin, UpdateView):
     model = Blog
     template_name = 'blog_form.html'
-    fields = ['category', 'title', 'content']
+    form_class = BlogForm
 
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.author = self.request.user
+        if 'image' in self.request.FILES:
+            self.object.image = self.request.FILES['image']
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_queryset(self):    # user가 같은 user인지 걸러내는 방법
         queryset = super().get_queryset()
