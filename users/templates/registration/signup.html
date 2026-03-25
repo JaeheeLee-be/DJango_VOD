@@ -1,30 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <nav>
-        <div style="text-align: right">
-            {% if request.user.is_authenticated %}
-                <form action="{% url 'logout' %}" method="POST" style="display: inline">
-                    {% csrf_token %}
-                    <button>로그아웃</button>
-                </form>
-                {{ request.user.username }}
-            {% else %}
-                <a href="{% url 'signup' %}">회원가입</a>
-                <a href="{% url 'login' %}">로그인</a>
-            {% endif %}
-        </div>
+{% extends 'registration/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">회원가입</h1>
+    <nav class="d-flex justify-content-end mb-3">
+        {% if request.user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="POST" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-danger btn-sm">로그아웃</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-secondary btn-sm">로그인</a>
+        {% endif %}
     </nav>
     <form method="post">
         {% csrf_token %}
-        {{ form.errors }}  ← 추가!
+        {{ form.errors }}
         {{ form.as_p }}
-        <button>회원가입</button>
+        <button type="submit" class="btn btn-primary">회원가입</button>
     </form>
-
-</body>
-</html>
+</div>
+{% endblock %}

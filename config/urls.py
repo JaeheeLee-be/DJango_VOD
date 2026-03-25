@@ -94,7 +94,7 @@ urlpatterns = [
     path('bookmark/<int:pk>/', views.bookmark_detail),
     path('day2/', include('Day2.urls')), # FBV
     path('cbv/', include('Day2.cb_urls')), # CBV
-    path('accounts/', include('django.contrib.auth.urls')),
+    # path('accounts/', include('django.contrib.auth.urls')),
     path('users/', include('users.urls')),
     path('summernote/', include('django_summernote.urls')),
 ]

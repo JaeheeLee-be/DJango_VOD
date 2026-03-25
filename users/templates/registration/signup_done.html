@@ -1,0 +1,9 @@
+{% extends 'registration/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">회원가입 완료</h1>
+    <p>이메일 인증 링크를 발송했습니다.</p>
+    <p>이메일을 확인하고 인증을 완료해주세요!</p>
+    <a href="{% url 'login' %}" class="btn btn-primary">로그인 페이지로</a>
+</div>
+{% endblock %}

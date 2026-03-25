@@ -1,0 +1,8 @@
+{% extends 'registration/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">이메일 인증 실패</h1>
+    <p>인증 코드가 만료되었거나 잘못된 접근입니다.</p>
+    <a href="{% url 'signup' %}" class="btn btn-primary">회원가입 페이지로</a>
+</div>
+{% endblock %}
