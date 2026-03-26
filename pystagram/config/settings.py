@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # own
     'member',
+    'post',
     # 3rd party
     'django_extensions',
 ]

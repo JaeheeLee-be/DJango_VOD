@@ -1,0 +1,199 @@
+1. Django Project Setting
+    1-1 가상환경 구축하는 방법(with Poetry)
+        poetry init (poetry 초기화)
+        poetry shell (peotry 가상환경 생성과 활성화)
+        peotry add django (Django 설치)
+
+    1-2 Django 설치 및 프로젝트 구성, 앱 세팅하는 방법
+        django-admin startproject config . (프로젝트 생성)
+        python manage.py startapp 앱이름 (앱 생성) + config/settings에서 INSTALLED_APPS = ['앱이름',] 추가
+
+    1-3 templates 경로 지정하기
+        config/settings
+        TEMPLATES = [ { 'DIRS': [BASE_DIR / 'templates'], } ]
+
+    1-4 static 경로 지정하기
+        config/settings
+        STATIC_URL = '/static/'
+        STATICFILES_DIRS = [BASE_DIR / 'static'] (개발환경)
+        STATIC_ROOT = BASE_DIR / 'staticfiles' (배포환경)
+
+    1-5 media 경로 지정하기
+        config/settings
+        MEDIA_URL = '/media/'
+        MEDIA_ROOT = BASE_DIR / '/media'/
+
+
+2. Database Model
+    2-1 데이터베이스 모델 정의하기
+    from django.db import models
+
+    class Post(model, Models):
+        title = models.CharField(max_length=200)
+        content = models.TextField()
+        created_at = models.DateTimeField(auto_now_add=True)
+
+    2-2 각 필드별 특징 정리하기
+    [문자열]
+    CharField: 짧은 문자열, max_length 있어야함
+    TextField: 긴 문자열
+    EmailField: 이메일 형식 검증
+    URLField: URL형식 검증
+
+    [숫자]
+    IntegerField: 정수
+    FloatField: 실수
+    BooleanField: True/False
+
+    [날짜/시간]
+    DateField: 날짜
+    TimeField: 시간
+    DateTimeField: 날짜+시간
+
+    [파일]
+    ImageField: 이미지 파일, Pillow 설치
+    FileField: 모든 파일
+
+    2-3 Migration에 대하서 정리하기
+        Migration이란? 모델변경사항을 DB에 반영하는 과정, migration 파일은 DB변경 이력을 관리
+
+        python manage.py makemigrations (모델 변경사항 확인 후에 migration 파일 생성)
+        python manage.py migrate (migration 파일을 DB에 반영)
+
+        모델 새로 만들었을 때, 필드추가/수정/삭제했을 때 (makemigrations -> migrate)
+        라이브러리 설치 후 (migrate)
+
+
+3. Jinja
+    3-1 Jinja 문법 정리하기
+        변수출력
+        {{ 변수명 }}, {{ user.username }}, {{ todo.list }}
+
+        조건문
+        {% if %}, {% elif 조건 %}, {% else %}, {% endif}
+
+        반복문
+        {% for item in list %}, {{ item }}, {% endfor %}
+
+        url 태그
+        {% url '이름' %}, {% url '이름' pk %}
+
+        csrf 태그
+        <form method="post">{% csrf_token %}</form>
+
+    3-2 block 사용법
+        자식 템플릿이 채워넣을 공간을 말함 (부모 템플릿 'base.html')
+        {% extents 'base.html' %}
+        {% block content %}
+        {% endblock %}
+
+    3-3 extends 사용법
+        {% extents 'base.html' %}
+
+    block은 여기 사이에 내용을 추가, extends는 부모템플릿을 사용
+
+4. FBV(Function Based View )
+    4-1 FBV란? Function Based View의 약자로 함수 형태로 작성하는 뷰
+        def my_view(request):
+            return HttpResponse('Hello!')
+
+        FBV: 함수, 직관적/단순, 단순한 로직
+        CBV: 클래스, 재사용성 높음/코드 간결, 복잡한 CRUD
+
+    4-2 간단한 View 메소드 작성법
+        render: 템플릿을 HTML 변환해서 응답
+
+        from django.shortcuts import render
+
+        def todo_list(request):
+            todos = Todo.objects.all()
+            context = {
+                'todos': todos
+            }
+            return render(request, 'todo/todo_list.html', context)
+
+        redirect: 다른 URL로 이동
+
+        from django.shortcuts import redirect
+
+        def todo_create(request):
+            if request.method == 'POST':
+                return redirect('todo_list')
+
+            return render(request, 'todo/todo_create.html')
+
+        render: 템플릿을 그대로 보여줌 (URL 변경 없음), 페이지를 보여줄 때
+        return render(request, 'todo/todo_list.html', context)
+
+        redirect: 다른 URL로 이동시킴 (URL 변경 있음), 작업 완료 후 다른 페이지로 보낼 때
+        return redirect('todo_list')
+
+
+5. Urls
+    5-1 URL 엔드포인트란?
+        클라이언트가 서버에 요청을 보내는 URL 주소
+        http://127.0.0.1:8000/todo/create/
+        에서 todo가 엔드포인트이며, 이 주소로 오면 이 기능 실행하라고 매핑 해둔것
+
+    5-2 urlspatterns
+        URL과 뷰를 연결하는 리스트
+
+        from django.urls import path
+        from . import views
+
+        urlpatterns = [
+            path('todo'/, views.todo_list, name='todo_list),
+        ]
+
+        URL 패턴 변수
+        <int:pk>: 정수
+        <str:slug>: 문자열
+        <uuid:id>: UUID
+
+    5-3 URL Include 개념 및 방법
+        config/urls.py 하나에 모든 URL을 관리하면 앱이 많아질수록 복잡해져서 앱마다 urls를 만들어서 분리해서 관리하기 위함
+
+        from django.urls import path, include
+
+        urlpatterns = [
+            path('todo/', include('users.url')),
+            # todo/ 이후에는 users/url.py 담당
+        ]
+
+    5-4 path
+        URL과 View를 연결해주는 함수
+
+        path('URL 경로', 뷰함수, name='URL이름')
+
+        # FBV
+        path('todo/', views.todo_list, name='todo_list')
+
+        # CBV
+        path('todo/', views.TodoListView.as_view(), name='todo_list')
+
+        config/urls.py: 전체 URL 관리(메인)
+        from django.urls import path, include
+
+        urlpatterns = [
+            path('todo/', include(users.urls)),
+        ]
+        users/urls.py로 위임
+
+        앱이름/urls.py: 앱 관련 URL 관리
+        from django.urls import path
+        from . import views
+
+        urlpatterns = [
+            path('', views.todo_list, name='todo_list'),
+            # /todo/
+            path('create/', views.todo_create, name='todo_create'),
+            # /todo/create/
+            path('<int:pk>/', views.todo_detail, name='todo_detail'),
+            # /todo/1/
+        ]
+
+        users/urls.py: 유저 관련 URL 관리
+
+
+    5-5 include
+        이 경로 해당 앱이 담당하고 이후에는 include한 앱의 urls.py에게 담당시킴
