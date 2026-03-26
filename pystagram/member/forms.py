@@ -41,3 +41,41 @@ class SignUpForm(UserCreationForm):
                 }
             )
         }
+
+
+class LoginForm(forms.Form):
+    email = forms.CharField(
+        label='이메일',
+        required=True,
+        widget=forms.EmailInput(
+            attrs={
+                'placeholder': 'example@example.com',
+                'class': 'form-control'
+            }
+        )
+    )
+    password = forms.CharField(
+        label='패스워드',
+        required=True,
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': 'password',
+                'class': 'form-control'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = None
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        password = cleaned_data.get('password')
+
+        self.user = authenticate(email=email, password=password)
+
+        if not user.is_active:
+            raise forms.ValidationError('유저가 입증되지 않았습니다.')
+        return cleaned_data
