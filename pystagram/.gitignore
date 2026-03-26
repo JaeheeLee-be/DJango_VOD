@@ -1,0 +1,3 @@
+.config_secret/
+.idea/
+db.sqlite3

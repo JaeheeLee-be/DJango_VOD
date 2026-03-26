@@ -1,5 +1,6 @@
 from django.contrib.auth import login as django_login
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, FormView
@@ -26,11 +27,16 @@ class LoginView(FormView):
 
     def form_valid(self, form):
         django_login(self.request, form.get_user())
+
+        next_page = self.request.GET.get('next')
+        if next_page:
+            return HttpResponseRedirect(next_page)
+
         return super().form_valid(form)
 
 
 def verify_email(request):
-    code = request.GET.get('code')
+    code = request.GET.get('code', '')
     try:
         signer = TimestampSigner()
         email = signer.unsign(code, max_age=60 * 5)

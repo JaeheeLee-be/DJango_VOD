@@ -23,22 +23,24 @@ class Todo(models.Model):
 
     def save(self, *args, **kwargs):
         if self.completed_image:
-            img = Image.open(self.completed_image)
-            img.thumbnail((300, 300))
-
 
             path = Path(self.completed_image.name)
             stem = path.stem
             suffix = path.suffix.lower()
 
-            thumbnail_name = f'{stem}_thumbnail{suffix}'
-
             if suffix in ['.jpg', '.jpeg']:
                 file_type = 'JPEG'
             elif suffix == '.png':
                 file_type = 'PNG'
+            elif suffix == '.gif':
+                file_type = 'GIF'
             else:
-                file_type = 'PNG'
+                return super().save(*args, **kwargs)
+
+            img = Image.open(self.completed_image)
+            img.thumbnail((300, 300))
+
+            thumbnail_name = f'{stem}_thumbnail{suffix}'
 
             temp_file = BytesIO()
             img.save(temp_file, format=file_type)
