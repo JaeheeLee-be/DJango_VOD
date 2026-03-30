@@ -1,0 +1,469 @@
+1. Django Form
+    1-1 Form 생성하는 법
+        일반 Form
+        from django import forms
+
+        class TodoForm(forms.Form):
+            title = forms.CharField(max_length=50)
+            description = forms.CharField()
+
+        Model Form
+        from django import forms
+        from .models import Todo
+
+        class TodoForm(forms.ModelForm):
+            class Meta:
+                model = Todo
+                fields = ['title', 'description']
+
+    1-2 widgets
+        폼 필드의 HTML 입력 요소를 커스터마이징 함
+        class TodoForm(forms.ModelForm):
+            class Meta:
+                model = Todo
+                fields = ['title', 'description', 'start_date']
+                widgets = {
+                    'title': forms.TextInput(attrs={
+                        'class': 'form-control',
+                        'placeholder': '제목 입력'
+                    }),
+                    'description': forms.Textarea(attrs={
+                        'class': 'form-control',
+                        'rows': 3
+                    }),
+                    'start_date': forms.DateInput(attrs={
+                        'class': 'form-control',
+                        'type': 'date'
+                    }),
+                }
+
+        TextInput: 한 줄 텍스트
+        Textarea: 여러 줄 텍스트
+        EmailInput: 이메일 입력
+        passwordInput: 비밀번호 입력
+        DateInput: 날짜 입력
+        CheckboxInput: 체크 박스
+        FileInput: 파일 업로드
+        Select: 드롭다운
+
+    1-3 CreationForm
+        Django 내장 회원가입 폼, username, password1, password2 필드를 기본으로 제공
+        from django.contrib.auth.forms import UserCreationForm
+        from .models import User
+
+        class SignupForm(UserCreationForm):
+            class Meta:
+                model = User
+                fields = ['email', 'name', 'password1', 'password2']
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.fields['password1'].widget = forms.PasswordInput(attrs={
+                    'class': 'form-control'
+                })
+                self.fields['password2'].widget = forms.PasswordInput(attrs={
+                    'class': 'form-control'
+                })
+
+    1-4 AuthenticationForm
+        Django 내장 로그인 폼, 첫번째 인자를 request를 받아야 함
+        from django.contrib.auth.forms import AuthenticationForm
+        from django import forms
+
+        class LoginForm(AuthenticationForm):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.fields['username'].widget = forms.EmailInput(attrs={
+                    'class': 'form-control',
+                    'placeholder': '이메일'
+                })
+                self.fields['password'].widget = forms.PasswordInput(attrs={
+                    'class': 'form-control',
+                    'placeholder': '비밀번호'
+                })
+
+        # CBV에서는 get_form_kwargs 오버라이드 필수
+        class LoginView(FormView):
+            form_class = LoginForm
+
+            def get_form_kwargs(self):
+                kwargs = super().get_form_kwargs()
+                kwargs['request'] = self.request  # request 전달 필수!
+                return kwargs
+
+    1-5 is_valid()
+        폼 데이터의 유효성 검사
+        1) 필드별 유효성 검사(required, max_length)
+        2) 커스텀 clean() 메서드 실행
+        3) 통과하면 True, 실패하면 False + form.errors에 에러 저장
+        def todo_create(request):
+            form = TodoForm(request.POST or None)
+
+            if form.is_valid():
+                form.save()
+                return redirect('todo_list')
+
+            return render(request, 'todo/todo_create.html', {'form': form})
+
+
+2. Django ORM
+    2-1 Object Relational Mapping, Python 코드로 DB를 조작할 수 있게 해주는 도구
+        (SQL 직접 사용) SELECT * FROM todo WHERE user_id = 1;
+        (Django ORM 사용) Todo.objects.filter(user=request.user)
+
+    2-2 Django ORM의 특징
+        1)Python 코드로 DB조작(SQL 몰라도 사용 가능)
+        2)DB종속성 없음(DB가 바뀌어도 코드 수정 불필요)
+        3)보안: SQL Injection 자동방어
+        4)QuerySet: DB결과를 Python 객체로 반환
+
+    2-3 Django ORM의 기본적인 사용방법
+        objects: 모델의 DB매니저, 모든 ORM 쿼리의 시작점
+        1)Todo.objects.all(): 전체 테이블 조회
+        2)Todo.objects.filter(): 조건 조회
+        3)Todo.objects.get(): 단일 조회
+
+        filter: 조건에 맞는 여러 개의 객체를 조회하고 QuerySet 반환
+        1)기본 사용
+        Todo.objects.filter(is_completed=True)
+        Todo.objects.filter(user=request.user)
+
+        2)여러 조건(AND)
+        Todo.objects.filter(user=request.user, is_completed=True)
+
+        3)조건 연산자
+        Todo.objects.filter(title__contains='Django'): 포함
+        Todo.objects.filter(title__icontains='django'): 대,소문자 무시
+        Todo.objects.filter(created_at__gte='2026-03-29'): 이상
+        Todo.objects.filter(created_at__lte='2026-03-28'): 이하
+
+        4)OR 조건(Q 사용)
+        from django.db.models import Q
+        Todo.objects.filter(Q(title__icontains='검색어' | Q(description__icontains'검색어'))
+
+        get: 조건에 맞는 단일 객체 조회
+        Todo.objects.get(pk=1)
+        Todo.objects.get(email='test@test.com')
+
+        order_by: 결과를 정렬
+        Todo.objects.order_by('created_at'): 오름차순
+        Todo.objects.order_by('-created_at'): 내림차순
+        Todo.objects.order_by('title', '-created_at'): 다중정렬
+
+        create: 객체를 생성
+        1)create()
+        Todo.objects.create(
+            user=request.user,
+            title='제목',
+            description='내용'
+        )
+
+        2)save()
+        todo = Todo(
+            user=request.user,
+            title='제목',
+        )
+        todo.save()
+
+        delete: 객체를 삭제
+        1)단일 삭제
+        todo = Todo.objects.get(pk=1)
+        todo.delete()
+
+        2)여러 개 삭제
+        Todo.objects.filter(is_completed=Ture).delete()
+
+        update: 객체를 수정
+        1)update(): 여러 개 한 번에
+        Todo.objects.filter(user=request.user).update(is_completed=True)
+
+        2)save(): 단일
+        todo = Todo.objects.get(pk=1)
+        todo.title = '수정된 제목'
+        todo.save()
+
+        get_object_or_404: 객체가 없으면 404에러 반환
+        from django.shortcuts import get_object_or_404
+
+        todo = get_object_or_404(Todo, pk=1)
+        todo = get_object_or_404(Todo, pk=pk, user=request.user)
+
+
+3.Django Auth
+    3-1 Django UserModel
+        기본 유저 모델을 제공(auth: 앱에 내장, 기본적 제공 필드: username, password, email, is_staff, is_active)
+        from django.contrib.auth.models import User
+
+        1)accounts: django.contrib.auth.urls를 include하면 기본 로그인/로그아웃 URL을 제공
+          path('accounts/', include('django.contrib.auth.url'))
+
+        2)Custom UserModel: 기본 유저 모델을 커스터마이징
+          AUTH_USER_MODEL = 'users.User' (config/settngs)
+
+            2-1)AbstractUser: 기본 유저 모델을 그대로 상속받아 사용
+                from django.contrib.auth.models import AbstractUser
+
+                class User(AbstractUser):
+                    nickname = models.CharField(max_length=50)
+                    profile_image = models.ImageField(null=True, blank=True)
+
+            2-2)AbstractBaseUser: 유저 모델을 처음부터 직접구현, 자유도가 높지만 구현할 것이 많음
+                from django.contrib.auth.models import AbstractBaseUser
+
+                class User(AbstractBaseUser):
+                    email = models.EmailField(unique=True)
+                    name = models.CharField(max_length=100)
+                    is_active = models.BooleanField(default=False)
+                    is_staff = models.BooleanField(default=False)
+
+                    USERNAME_FIELD = 'email'
+                    REQUIRED_FIELDS = ['name']
+
+            2-3)PermissionsMixin: 권한 관련 기능을 추가, AbstractBaseUser와 함께 사용
+                 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+
+                 class User(AbstractBaseUser, PermissionsMixin):
+
+            2-4)BaseUserManager/UserManager: 유저 생성 로직 담당
+                from django.contrib.auth.models import BaseUserManager
+
+                class UserManager(BaseUserManager):
+                    def create_user(self, email, password, **kwargs):
+                        if not email:
+                            raise ValueError('이메일은 필수입니다.')
+                        email = self.normalize_email(email)
+                        user = self.model(email=email, **kwargs)
+                        user.set_password(password)
+                        user.save(using=self._db)
+                        return user
+
+                    def create_superuser(self, email, password, **kwargs):
+                        kwargs.setdefault('is_staff', True)
+                        kwargs.setdefault('is_superuser', True)
+                        kwargs.setdefault('is_active', True)
+                        return self.create_user(email, password, **kwargs)
+
+    3-2 authenticate()
+        이메일/비밀번호로 유저를 인증, 인증 성공시 유저객체, 실패시 None으로 반환
+        from django.contrib.auth import authenticate
+
+        user = authenticate(request, username=email, password=password)
+
+        if user is not None:
+
+        else:
+
+    3-3 login()
+        세션에 유저 정보를 저장, 로그인 상태 유지
+        from django.contrib.auth import login
+
+        user = authenticate(request, username=email, password=password)
+        if user:
+            login(request, user)
+            return redirect('todo_list')
+
+    3-4 logout()
+        세션에서 유저 정보를 삭제
+        from django.contrib.auth import logout
+
+        def logout_view(request):
+            logout(request)
+            return redirect('login')
+
+    3-5 login_required 데코레이터
+        로그인한 유저만 접근가능
+        from django.contrib.auth.decorators import login_required
+
+        FBV 사용 시
+        @login_required
+        def todo_list(request):
+            ...
+
+        CBV 사용 시 (LoginRequiredMixin) 사용
+        from django.contrib.auth.mixins import LoginRequiredMixin
+
+        class TodoListView(LoginRequiredMixin, ListView):
+            ...
+
+        미로그인 시 config/settings.py LOGIN_URL로 리다이렉트
+        LOGIN_URL = '/users/login/'
+
+
+4.CBV(Class Base View)
+    4-1 CBV란?
+        클래스 형태로 작성하는 뷰
+        from django.views.generic import ListView
+
+        class TodoListView(ListView):
+            model = Todo
+            template_name = 'todo/todo_list.html'
+
+    4-2 View
+        모든 CBV의 최상위 부모 클래스
+        from django.views import View
+
+        class MyView(View):
+            def get(self, request):
+                return render(request, 'template.html')
+
+            def post(self, request): # get(), post(), put(), delete()
+                return redirect('todo_list')
+
+    4-3 Generic Views
+        자주 쓰는 패턴을 미리 구현해 둔 클래스
+
+        1)ListView: 객체 목록 뷰
+         from django.views.generic import ListView
+
+         class TodoListView(LoginRequiredMixin, ListView):
+             model = Todo
+             template_name = 'todo/todo_list.html'
+             paginate_by = 10
+             ordering = ('-created_at',)
+
+             def get_queryset(self):
+                 queryset = super().get_queryset()
+                 return queryset.filter(user=self.request.user)
+
+        2)DetailView: 객체 상세 뷰
+        from django.views.generic import DetailView
+
+        class TodoDetailView(LoginRequiredMixin, DetailView):
+            model = Todo
+            template_name = 'todo/todo_detail.html'
+
+            def get_context_data(self, **kwargs):
+                context = super().get_context_data(**kwargs)
+                context['comment_form'] = CommentForm()
+                return context
+
+        3)CreateView: 객체 생성 뷰
+        from django.views.generic import CreateView
+
+        class TodoCreateView(LoginRequiredMixin, CreateView):
+            model = Todo
+            template_name = 'todo/todo_form.html'
+            form_class = TodoForm
+
+            def form_valid(self, form):
+                form.instance.user = self.request.user
+                return super().form_valid(form)
+
+            def get_success_url(self):
+                return reverse_lazy('todo_list')
+
+    4-4 request
+        1)user 가져오기
+        request.user: 로그인한 유저
+        request.user.is_authenticated: 로그인 여부
+        request.user.is_superuser: 관리자 여부
+
+        2)data 가져오기
+        request.POST.get('title'): POST 데이터
+        request.GET.get('q'): GET 데이터
+        request.FILES.get('image'): 파일 데이터
+
+        3)URL 파라미터(Path Parameter)
+        # urls.py
+        path('todo/<int:pk>/', views.TodoDetailView.as_view())
+
+        # views.py (FBV)
+        def todo_detail(request, pk):
+            todo = get_object_or_404(Todo, pk=pk)
+
+        # views.py (CBV)
+        class TodoDetailView(DetailView):
+            def get_object(self):
+                return get_object_or_404(Todo, pk=self.kwargs['pk'])
+
+        4)쿼리 파라미터(QueryParameter)
+        request.GET.get('q')
+        request.GET.get('page')
+
+    4-5 response
+        1)HttpResponseRedirect
+        from django.http import HttpResponseRedirect
+
+        return HttpResponseRedirect('/todo/')
+        return HttpResponseRedirect(reverse('todo_list'))
+
+        2)HttpResponse
+        from django.http import HttpResponse
+
+        return HttpResponse('Hello!')
+        return HttpResponse('<h1>Hello</h1>')
+        return HttpResponse(status=404)
+
+        3)response data
+        return render(request, 'template.html', context): 템플릿 렌더링
+        return redirect('todo_list'): 리다이렉트
+        from django.http import JsonResponse
+        return JsonResponse({'status': 'ok', 'data': data})
+
+
+5.Django Mail
+    5-1 django.core.mail.send_mail: 이메일을 발송하는 Django 내장함수
+        from django.core.mail import send_mail
+
+        send_mail(
+            subject='제목',
+            message='내용',
+            from_email='보내는사람@email.com',
+            recipient_list=['받는사람@email.com'],
+        )
+
+        # settings.py 설정
+        EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+        EMAIL_HOST = 'smtp.naver.com'
+        EMAIL_USE_TLS = False
+        EMAIL_USE_SSL = True
+        EMAIL_PORT = 465
+        EMAIL_HOST_USER = '보내는사람@naver.com'
+        EMAIL_HOST_PASSWORD = '비밀번호'
+
+        from django.conf import settings
+
+        if settings.DEBUG:
+            print(f'인증 URL: {url}'): 개발시 콘솔 출력
+        else:
+            send_mail(...): 운영시 실제 발송
+
+    5-2 django.core.signing: 데이터를 서명(암호화)하고 검증, 이메일 인증 토큰 등에 사용
+        from django.core import signing
+
+        token = signing.dumps({'email': 'test@test.com'}): 서명(암호화)
+        data = signing.loads(token): 검증(복호화)
+
+    5-3 django.core.signing.TimestampSigner: 서명에 타임스탬프를 추가, 만료시간을 설정할 수 있음
+        from django.core.signing import TimestampSigner, SignatureExpired, BadSignture
+
+        signer = TimestampSigner()
+
+        signed_value =  signer.sign(test@test.com): 서명
+
+        try: (검증)
+            email = signer.unsign(signed_value, max_age=60 * 5)
+        except SignatureExpired: (만료된 서명)
+            pass
+        except BadSignature: (잘못된 서명)
+            pass
+        ...
+
+        # 발송
+        signer = TimestampSigner()
+        signed_value = signer.sign(user.email)
+        url = f'/verify/?code={signed_value}'
+        send_mail(..., message=url, ...)
+
+        # 검증
+        def verify_email(request):
+            code = request.GET.get('code': '')
+            try:
+                signer = TimestampSigner()
+                email = signer.unsign(code, max_age=60 * 5): 5분 유효
+                user = get_object_or_404(User, email=email)
+                user.is_active = True
+                user.save()
+                return render(request, 'verify_success.html')
+            except (SignatureExpired, BadSignature):
+                return render(request, 'verify_failed.html')
