@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block style %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"/>
+    <style>
+        .post-image {
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-10 offset-1 col-lg-6 offset-lg-3">
+            {% for post in object_list %}
+                <div class="border-bottom my-4 pb-2">
+                    <div class="mb-2">
+                        <span class="p-2 border rounded-circle me-2">
+                            <i class="fa-solid fa-user" style="width: 16px; padding-left: 1px;"></i>
+                        </span>
+                        {{ post.user.nickname }}
+                    </div>
+
+                    <div class="swiper" style="max-height: 500px;">
+                        <div class="swiper-wrapper">
+                            {% for post_image in post.images.all %}
+                                <div class="swiper-slide">
+                                    <img class="img-fluid post-image"
+                                         src="{{ post_image.image.url }}" alt="">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                    {# TODO like #}
+                    <div class="my-2">
+                        {{ post.content|linebreaksbr }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.swiper').forEach(el => {
+            new Swiper(el, {
+                direction: 'horizontal',
+                loop: false, <!-- true 일 경우 슬라이드 제한이 없어짐 -->
+                pagination: {
+                    el: '.swiper-pagination',
+                },
+            });
+        });
+    </script>
+{% endblock %}

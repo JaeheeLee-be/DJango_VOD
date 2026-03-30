@@ -25,6 +25,11 @@ class LoginView(FormView):
     template_name = 'registration/login.html'
     success_url = reverse_lazy('cbv_todo_list')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
     def form_valid(self, form):
         django_login(self.request, form.get_user())
 

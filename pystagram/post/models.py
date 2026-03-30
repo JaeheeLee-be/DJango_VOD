@@ -18,7 +18,7 @@ class Post(TimeStampedModel):
         verbose_name_plural = '포스트 목록'
 
 class PostImage(TimeStampedModel):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField('이미지', upload_to='post/%Y/%m/%d')
 
     def __str__(self):
